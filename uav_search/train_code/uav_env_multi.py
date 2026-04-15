@@ -36,15 +36,18 @@ class AirSimDroneEnv(gym.Env):
         self.airsim_process = None
         self.task_data = json.load(open('uav_search/task_map/rl_tasks.json'))
         self.map_scripts = {
-            "BrushifyUrban": "BrushifyUrban/BrushifyUrban.sh",
-            "CabinLake": "CabinLake/CabinLake.sh",
-            "DownTown": "DownTown/DownTown_test1.sh",
-            "Neighborhood": "Neighborhood/NewNeighborhood.sh",
-            "Slum": "Slum/Slum_test1.sh",
-            "UrbanJapan": "UrbanJapan/UrbanJapan.sh",
-            "Venice": "Venice/Vinice_test1.sh",
-            "WesternTown": "WesternTown/WesternTown_test1.sh",
-            "WinterTown": "WinterTown/WinterTown_test1.sh"
+            "BrushifyUrban": "UAVbench/TEST_ENVS/BrushifyUrban/BrushifyUrban.sh",
+            "CabinLake": "UAVbench/TEST_ENVS/CabinLake/CabinLake.sh",
+            "DownTown": "UAVbench/TEST_ENVS/DownTown/DownTown_test1.sh",
+            "Neighborhood": "UAVbench/TEST_ENVS/Neighborhood/NewNeighborhood.sh",
+            "Slum": "UAVbench/TEST_ENVS/Slum/Slum_test1.sh",
+            "UrbanJapan": "UAVbench/TEST_ENVS/UrbanJapan/UrbanJapan.sh",
+            "Venice": "UAVbench/TEST_ENVS/Venice/Vinice_test1.sh",
+            "WesternTown": "UAVbench/TEST_ENVS/WesternTown/WesternTown_test1.sh",
+            "WinterTown": "UAVbench/TEST_ENVS/WinterTown/WinterTown_test1.sh",
+            "Barnyard": "UAVbench/TEST_ENVS/Barnyard/Barnyard_test1.sh",
+            "CityStreet": "UAVbench/TEST_ENVS/CityStreet/CleanCityStreet.sh",
+            "NYC": "UAVbench/TEST_ENVS/NYC/NYC1950.sh"
         }
         match self.worker_index:
             case 0:
@@ -159,7 +162,7 @@ class AirSimDroneEnv(gym.Env):
             raise ValueError(f"No launch script found for map: {target_map_name}")
         
         print(f"Launching new AirSim process with script: {script_path}")
-        launch_command = ['bash', script_path, '-RenderOffscreen', '-NoSound', '-NoVSync', '-GraphicsAdapter=6', f'-settings="{self.settings_path}"']
+        launch_command = ['bash', os.path.join(os.getcwd(), script_path), '-RenderOffscreen', '-NoSound', '-NoVSync', '-GraphicsAdapter=6', f'-settings="{self.settings_path}"']
         self.airsim_process = subprocess.Popen(launch_command,start_new_session=True)
         self.current_map_name = target_map_name
         self._connect_to_airsim()

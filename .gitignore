@@ -3,3 +3,12 @@ __pycache__/
 *$py.class
 
 ./uav_search/models/
+TEST_ENVS/
+TRAIN_ENVS/
+logs/
+docs/
+DATASET/
+train_logs/
+ppo_uav_tensorboard/
+all4_experiment_logs/
+uav_search/models/

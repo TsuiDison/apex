@@ -12,7 +12,7 @@ detection_box_threshold = 0.3
 detection_text_threshold = 0.7
 
 def detection_test(processor, model, pil_image, depth_image, camera_info, camera_position, camera_orientation, object_name) :
-    device = "cuda:1" 
+    device = "cuda:0" 
     warnings.filterwarnings("ignore")
 
     processor = processor

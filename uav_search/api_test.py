@@ -1,9 +1,14 @@
+import os
 from dashscope import MultiModalConversation
 import airsim
 import time
+import requests
 
 def generate_object_description(rgb_base64, object_description) -> dict:
 
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    model = "qwen/qwen2.5-vl-72b-instruct"
+    
     system_prompt_cot = f"""
                     You are a sophisticated AI decision module for an autonomous search drone. Your mission is to analyze an aerial surveillance image and a description of a search target, then decide which objects warrant closer investigation. Follow these steps precisely:
 
@@ -29,35 +34,53 @@ def generate_object_description(rgb_base64, object_description) -> dict:
                     Process the current input accordingly. The input is as follows:
                 """
     
-    messages=[
-                {"role": "system", "content": [system_prompt_cot]},
-                {
-                    "role": "user",
-                    "content": [
-                        {"image": f"data:image/png;base64,{rgb_base64}"},
-                        {"text": object_description}
-                    ]
-                }
-            ]
+    payload = {
+        "model": model,
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": system_prompt_cot + "\n\nTarget Description: " + object_description
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/png;base64,{rgb_base64}"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
 
     time_start = time.time()
 
     try:
-        response = MultiModalConversation.call(
-            api_key="your_api_key",
-            model="qwen-vl-max",
-            messages=messages
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers=headers,
+            json=payload
         )
+        
+        response.raise_for_status()
+        result = response.json()
 
-        if not response or "output" not in response:
-            raise RuntimeError("DashScope API response is None or missing 'output'")
+        if "choices" not in result:
+            raise RuntimeError(f"OpenRouter API response error: {result}")
         else:
             time_end = time.time()
             print("[Planning] API Time taken:", time_end - time_start, "seconds")
             
             return {
                 "success": True,
-                "response": response.output.choices[0].message.content[0]["text"]
+                "response": result["choices"][0]["message"]["content"]
             }
     except Exception as e:
         print(f"[Planning] Error occurred: {e}")

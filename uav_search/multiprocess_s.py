@@ -5,6 +5,7 @@ import signal
 import json
 import datetime
 import os
+import sys
 import airsim
 import numpy as np
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection, SamModel, SamProcessor
@@ -12,17 +13,25 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import VecNormalize
 from gymnasium import spaces
 
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 from uav_search.airsim_utils import get_images
 from uav_search.grounded_sam_test import grounded_sam
 from uav_search.map_updating_numpy import add_masks, downsample_masks, map_update_simple
 from uav_search.detection_test import detection_test
 from uav_search.action_model_inputs_test import obstacle_update, map_input_preparation
 
-DEVICE = "cuda:3"
-DINO_MODEL_DIR = "models/models-grounding-dino-base"
-SAM_MODEL_DIR = "models/models-sam-vit-base"
-ACTION_MODEL_PATH = "uav_search/models/f_ppo_num_4_final_400000.zip"
-STATS_PATH = "uav_search/models/vec_normalize_f_ppo_num_4_final.pkl"
+FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+DEVICE = "cuda:0"
+# 如果想用在线模型，改为 "IDEA-Research/grounding-dino-base"
+DINO_MODEL_DIR = os.path.join(FILE_DIR, "models", "models-grounding-dino-base")
+SAM_MODEL_DIR = os.path.join(FILE_DIR, "models", "models-sam-vit-base")
+# 去掉 .zip 后缀，SB3 会自动补全
+ACTION_MODEL_PATH = os.path.join(FILE_DIR, "models", "f_ppo_num_4_final_400000")
+STATS_PATH = os.path.join(FILE_DIR, "models", "vec_normalize_f_ppo_num_4_final.pkl")
 
 GRID_SCALE = 5.0
 ATTRACTION_MAP_SIZE = (40, 40, 10)
@@ -525,18 +534,18 @@ class ExperimentRunner:
 
 if __name__ == "__main__":
     MAP_SCRIPTS_CONFIG = {
-        "BrushifyUrban": "BrushifyUrban/BrushifyUrban.sh",
-        "CabinLake": "CabinLake/CabinLake.sh",
-        "DownTown": "DownTown/DownTown_test1.sh",
-        "Neighborhood": "Neighborhood/NewNeighborhood.sh",
-        "Slum": "Slum/Slum_test1.sh",
-        "UrbanJapan": "UrbanJapan/UrbanJapan.sh",
-        "Venice": "Venice/Vinice_test1.sh",
-        "WesternTown": "WesternTown/WesternTown_test1.sh",
-        "WinterTown": "WinterTown/WinterTown_test1.sh",
-        "Barnyard": "Barnyard/Barnyard_test1.sh",
-        "CityStreet": "CityStreet/CleanCityStreet.sh",
-        "NYC": "NYC/NYC1950.sh"
+        "BrushifyUrban": "UAVbench/TEST_ENVS/BrushifyUrban/BrushifyUrban.sh",
+        "CabinLake": "UAVbench/TEST_ENVS/CabinLake/CabinLake.sh",
+        "DownTown": "UAVbench/TEST_ENVS/DownTown/DownTown_test1.sh",
+        "Neighborhood": "UAVbench/TEST_ENVS/Neighborhood/NewNeighborhood.sh",
+        "Slum": "UAVbench/TEST_ENVS/Slum/Slum_test1.sh",
+        "UrbanJapan": "UAVbench/TEST_ENVS/UrbanJapan/UrbanJapan.sh",
+        "Venice": "UAVbench/TEST_ENVS/Venice/Vinice_test1.sh",
+        "WesternTown": "UAVbench/TEST_ENVS/WesternTown/WesternTown_test1.sh",
+        "WinterTown": "UAVbench/TEST_ENVS/WinterTown/WinterTown_test1.sh",
+        "Barnyard": "UAVbench/TEST_ENVS/Barnyard/Barnyard_test1.sh",
+        "CityStreet": "UAVbench/TEST_ENVS/CityStreet/CleanCityStreet.sh",
+        "NYC": "UAVbench/TEST_ENVS/NYC/NYC1950.sh"
     }
 
     TASKS_JSON_PATH = "uav_search/task_map/val_tasks.json"

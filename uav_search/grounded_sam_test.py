@@ -10,7 +10,7 @@ text_threshold = 0.3
 
 def grounded_sam(qwen_processor, qwen_model, dino_processor, dino_model, sam_processor, sam_model, pil_image, rgb_base64, object_description):
 
-    device = "cuda:1"
+    device = "cuda:0"
     warnings.filterwarnings("ignore")  
     
     time_start = time.time()
